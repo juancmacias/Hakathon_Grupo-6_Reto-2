@@ -1,7 +1,12 @@
-from crewai import Agent, Task, Crew
+import os
+from crewai import Agent, Task, Crew, LLM
 from crewai.tools import BaseTool
 from crewai_tools import PDFSearchTool
 from langchain_community.tools import DuckDuckGoSearchRun
+from dotenv import load_dotenv
+
+# Load env variables
+load_dotenv()
 
 # Custom class to Duck Duck Go
 class DuckDuckGoTool(BaseTool):
@@ -15,7 +20,7 @@ class DuckDuckGoTool(BaseTool):
 
         return response
 
-# Toos
+# Tools
 pdf_tool = PDFSearchTool(path="references/")
 duckduckgo_tool = DuckDuckGoTool()
 
@@ -67,7 +72,7 @@ def run_agent(gps_coords: list[float], topic: str = "Ratoncito Pérez"):
 
 if __name__ == "__main__":
     # GPS coordinates example -> Puerta del Sol, Madrid
-    gps_coords = [40.4168, -2.7038]
+    gps_coords = [40.4168, -3.7038]
     
     result = crew.kickoff(inputs={
         "gps": gps_coords,

@@ -3,7 +3,6 @@ from pydantic import BaseModel
 
 from backend.agent.tooth_fairy_agent import run_agent
 
-
 # --- Configuración de FastAPI ---
 app = FastAPI(
     title="API del Ratoncito Pérez",

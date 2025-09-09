@@ -29,7 +29,7 @@ model/           # Archivos relacionados con modelos (actualmente vacío)
 3. **Ejecutar la API del Ratoncito Pérez**
     - Una vez activado el entorno virtual y con las dependencias instaladas, ejecuta el siguiente comando desde la raíz del proyecto para iniciar el servidor:
       ```bash
-      uvicorn frontend.api.tooth_fairy_api:app --reload
+      uvicorn backend.api.tooth_fairy_api:app --reload
       ```
     - La API estará disponible en `http://127.0.0.1:8000`.
     - Puedes acceder a la documentación interactiva (Swagger UI) en `http://127.0.0.1:8000/docs` para probar el endpoint.

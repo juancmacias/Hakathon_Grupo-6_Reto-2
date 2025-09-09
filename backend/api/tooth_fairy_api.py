@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from frontend.agent.tooth_fairy_agent import run_agent
+from backend.agent.tooth_fairy_agent import run_agent
 
 
 # --- Configuración de FastAPI ---

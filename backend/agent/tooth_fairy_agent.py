@@ -4,9 +4,22 @@ from crewai.tools import BaseTool
 from crewai_tools import PDFSearchTool
 from langchain_community.tools import DuckDuckGoSearchRun
 from dotenv import load_dotenv
+from pydantic import BaseModel, Field
+from typing import List
 
 # Load env variables
 load_dotenv()
+
+# Pydantic models for structured output
+class Recommendation(BaseModel):
+    name: str = Field(description="Nombre del lugar o actividad.")
+    description: str = Field(description="Breve descripción del lugar o actividad y su relación con el tema (Ratoncito Pérez).")
+    location: str = Field(description="Dirección o ubicación aproximada del lugar.")
+
+class RecommendationsList(BaseModel):
+    cultural_activities: List[Recommendation] = Field(description="Lista de actividades culturales (qué hacer).")
+    tourist_places: List[Recommendation] = Field(description="Lista de lugares turísticos para ver.")
+    gastronomic_options: List[Recommendation] = Field(description="Lista de opciones gastronómicas (dónde comer).")
 
 # Custom class to Duck Duck Go
 class DuckDuckGoTool(BaseTool):
@@ -47,10 +60,12 @@ get_information = Task(
         "las coordenadas {gps} con énfasis en el {topic} y referencias culturales. Usa los PDFs disponibles como fuente."
     ),
     expected_output=(
-        "Una lista organizada con: 1) actividades culturales, 2) lugares turísticos relacionados, 3) opciones gastronómicas locales."
+        "Un objeto JSON que contenga tres listas: 'cultural_activities' (qué hacer), 'tourist_places' (qué ver), y 'gastronomic_options' (dónde comer). "
+        "Cada elemento en las listas debe ser un objeto con 'name', 'description', y 'location'."
     ),
     tools=[pdf_tool, duckduckgo_tool],
-    agent=tooth_fairy_agent
+    agent=tooth_fairy_agent,
+    output_pydantic=RecommendationsList
 )
 
 # --- Crew ---

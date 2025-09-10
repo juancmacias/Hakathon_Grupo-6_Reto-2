@@ -3,35 +3,31 @@ from pydantic import BaseModel
 
 from backend.agent.tooth_fairy_agent import run_agent
 
-# --- Configuración de FastAPI ---
+# --- FastAPI Configuration ---
 app = FastAPI(
-    title="API del Ratoncito Pérez",
-    description="Endpoint para obtener recomendaciones culturales y turísticas sobre el Ratoncito Pérez en Madrid.",
+    title="Tooth Fairy AOI",
+    description="Gets cultural and tourist recommendations about the Tooth Fairy in Madrid.",
     version="1.0.0",
 )
 
-# Modelo de datos para la entrada (input) del endpoint
+# Endpoint payload
 class GPSCoordinates(BaseModel):
     gps: list[float]
 
-# Endpoint principal
+# Main ndpoint
 @app.post("/tooth-fairy/recommendations")
 async def get_recommendations(coords: GPSCoordinates):
-    """
-    Recibe coordenadas GPS y devuelve recomendaciones sobre lugares 
-    relacionados con el Ratoncito Pérez en Madrid.
-    """
-    # Validar que se reciban exactamente dos coordenadas (latitud y longitud)
+    # Check payload
     if len(coords.gps) != 2:
-        raise HTTPException(status_code=400, detail="Las coordenadas GPS deben ser una lista con dos valores: [latitud, longitud].")
+        raise HTTPException(status_code=400, detail="GPS coordinates must be a list of length 2: [latitude, logitude].")
 
     try:
-        # Llamar a la función del agente desde el otro archivo
+        # Call agent
         result = run_agent(coords.gps)
         
-        # Devolver el resultado como un JSON
+        # Return response
         return {"recommendations": result}
 
     except Exception as e:
-        # Manejar posibles errores
+        # Error handling
         raise HTTPException(status_code=500, detail=str(e))

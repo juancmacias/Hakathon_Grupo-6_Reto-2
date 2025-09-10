@@ -14,7 +14,7 @@ __pycache__/
 *.db
 *.sqlite3
 *.egg-info/
-.env*
+.env
 venv/
 .venv/
 db/

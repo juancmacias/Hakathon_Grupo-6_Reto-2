@@ -50,6 +50,7 @@ tooth_fairy_agent = Agent(
         "Tengo un conocimiento profundo sobre el Ratoncito Pérez, su museo en Madrid y "
         "otros lugares relacionados. Uso referencias académicas y turísticas para dar respuestas fiables."
     ),
+    allow_delegation=False,
     verbose=True
 )
 
@@ -57,7 +58,7 @@ tooth_fairy_agent = Agent(
 get_information = Task(
     description=(
         "Dado un par de coordenadas {gps} en Madrid, encuentra qué hacer, ver y comer cerca, alrededor de "
-        "las coordenadas {gps} con énfasis en el {topic} y referencias culturales. Usa los PDFs disponibles como fuente."
+        "las coordenadas {gps} (máximo 1 km) con énfasis en el {topic} y referencias culturales. Usa los PDFs disponibles como fuente."
     ),
     expected_output=(
         "Un objeto JSON que contenga tres listas: 'cultural_activities' (qué hacer), 'tourist_places' (qué ver), y 'gastronomic_options' (dónde comer). "
@@ -65,7 +66,8 @@ get_information = Task(
     ),
     tools=[pdf_tool, duckduckgo_tool],
     agent=tooth_fairy_agent,
-    output_pydantic=RecommendationsList
+    output_pydantic=RecommendationsList,
+    allow_delegation=False,
 )
 
 # --- Crew ---

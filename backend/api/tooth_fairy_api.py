@@ -1,3 +1,4 @@
+import json
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
@@ -25,8 +26,16 @@ async def get_recommendations(coords: GPSCoordinates):
         # Call agent
         result = run_agent(coords.gps)
         
-        # Return response
-        return {"recommendations": result}
+        # Extract only the raw JSON answer
+        raw = getattr(result, "raw", None) or str(result)
+
+        try:
+            clean_json = json.loads(raw)  # Parse into dict
+        except Exception:
+            clean_json = {"answer": raw}  # fallback if it's plain text
+
+        # Return only the recommendations, not the metadata
+        return {"recommendations": clean_json}
 
     except Exception as e:
         # Error handling

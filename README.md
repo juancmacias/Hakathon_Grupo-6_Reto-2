@@ -26,8 +26,17 @@ model/           # Archivos relacionados con modelos (actualmente vacío)
        ```powershell
        pip install -r requirements.txt
        ```
-3. Para el frontend, instala las dependencias necesarias según el stack utilizado (Node.js, etc).
-4. Sigue las instrucciones específicas en cada carpeta para ejecutar el proyecto.
+3. **Ejecutar la API del Ratoncito Pérez**
+    - Una vez activado el entorno virtual y con las dependencias instaladas, ejecuta el siguiente comando desde la raíz del proyecto para iniciar el servidor:
+      ```bash
+      uvicorn backend.api.tooth_fairy_api:app --reload
+      ```
+    - El backend necesita un fichero `.env` con la configuracion del modelo.
+    - La API estará disponible en `http://127.0.0.1:8000`.
+    - Puedes acceder a la documentación interactiva (Swagger UI) en `http://127.0.0.1:8000/docs` para probar el endpoint.
+
+4. Para el frontend (si aplica), instala las dependencias necesarias según el stack utilizado (Node.js, etc).
+5. Sigue las instrucciones específicas en cada carpeta para ejecutar el proyecto.
 
 ## Notas
 - El archivo `.gitkeep` se utiliza para mantener carpetas vacías en el repositorio.

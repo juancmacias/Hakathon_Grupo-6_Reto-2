@@ -14,8 +14,10 @@ __pycache__/
 *.db
 *.sqlite3
 *.egg-info/
-.env*
+.env
 venv/
+.venv/
+db/
 
 # VS Code
 .vscode/
@@ -42,3 +44,6 @@ model/
 *.tsv
 *.xlsx
 *.json
+
+references/
+crewai-rag-tool.lock

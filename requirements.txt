@@ -1,5 +1,0 @@
-# Requisitos para el entorno Python
-# Añade aquí los paquetes necesarios, por ejemplo:
-numpy
-pandas
-scikit-learn

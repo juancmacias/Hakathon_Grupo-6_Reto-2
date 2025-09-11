@@ -35,6 +35,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Crear la aplicación FastAPI
+# Detectar si estamos en Hugging Face Spaces
+is_hf_space = os.getenv("SPACE_ID") is not None
+
+# En Hugging Face Spaces NO usar root_path, causa problemas de ruteo
 app = FastAPI(
     title="Ratoncito Pérez Agent API",
     description="API REST para el agente turístico de Madrid con CrewAI, Gemini y OpenStreetMap",
@@ -71,7 +75,12 @@ class TourismResponse(BaseModel):
     execution_time: Optional[float] = None
     timestamp: datetime
 
-
+class RootResponse(BaseModel):
+    message: str
+    version: str
+    description: str
+    docs: str
+    endpoints: Dict[str, str]
 
 # Variables globales para el agente
 llm = None
@@ -83,50 +92,77 @@ async def startup_event():
     global llm, vectorstore
 
     logger.info("🚀 Iniciando Ratoncito Pérez API...")
+    
+    # Detectar entorno
+    is_hf_space = os.getenv("SPACE_ID") is not None
+    if is_hf_space:
+        logger.info("🤗 Ejecutándose en Hugging Face Spaces")
+    else:
+        logger.info("💻 Ejecutándose en entorno local")
 
     try:
-        # Configurar LLM
         logger.info("⚙️ Configurando LLM Gemini...")
         llm = crear_llm_gemini()
-        
         # Inicializar vectorstore
         logger.info("📚 Inicializando vectorstore...")
         vectorstore = inicializar_vectorstore()
+        logger.info("✅ Vectorstore inicializado")
 
         logger.info("✅ Ratoncito Pérez API iniciado correctamente")
 
     except Exception as e:
         logger.error(f"❌ Error durante el startup: {e}")
-        raise
+        logger.error(f"📍 Tipo de error: {type(e).__name__}")
+        # No hacer raise para que la API al menos arranque
+        logger.warning("⚠️ API iniciada con funcionalidad limitada")
+        logger.info("🔧 Algunos endpoints pueden no funcionar correctamente")
 
-@app.get("/", response_model=Dict[str, str])
+@app.get("/", response_model=RootResponse)
 async def root():
     """Endpoint raíz con información de la API"""
-    return {
-        "message": "Ratoncito Pérez agente API",
-        "version": "1.0.0",
-        "description": "API REST para consultas turísticas de Madrid con IA/Ratoncito Pérez",
-        "docs": "/docs",
-        "endpoints": {
+    return RootResponse(
+        message="Ratoncito Pérez agente API",
+        version="1.0.0",
+        description="API REST para consultas turísticas de Madrid con IA/Ratoncito Pérez",
+        docs="/docs",
+        endpoints={
             "guide": "/guide - Guía turística completa del Ratoncito Pérez",
             "health": "/health - Estado de la API",
-            "locations": "/locations - Ubicaciones de ejemplo en Madrid"
+            "locations": "/locations - Ubicaciones de ejemplo en Madrid",
+            "docs": "/docs - Documentación Swagger UI",
+            "redoc": "/redoc - Documentación ReDoc"
         }
-    }
+    )
 
 @app.get("/health")
 async def health_check():
     """Endpoint de health check"""
-    global llm, vectorstore
-    
-    return {
-        "status": "healthy",
-        "timestamp": datetime.now(),
-        "components": {
-            "llm": "initialized" if llm else "not_initialized",
-            "vectorstore": "initialized" if vectorstore else "not_initialized"
+    try:
+        global llm, vectorstore
+        
+        return {
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "environment": {
+                "is_hf_space": os.getenv("SPACE_ID") is not None,
+                "space_id": os.getenv("SPACE_ID", "local"),
+                "python_version": sys.version.split()[0],
+                "working_directory": os.getcwd()
+            },
+            "components": {
+                "llm": "initialized" if llm else "not_initialized",
+                "vectorstore": "initialized" if vectorstore else "not_initialized"
+            }
         }
-    }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        }
+
+
+
 
 @app.post("/guide", response_model=TourismResponse)
 async def generate_tourism_guide(query: TourismQuery):
@@ -236,9 +272,21 @@ def run_server(host: str = "0.0.0.0", port: int = 8000, reload: bool = False):
     )
 
 if __name__ == "__main__":
-    # Configuración para desarrollo
-    run_server(
-        host="127.0.0.1",
-        port=8000,
-        reload=True
-    )
+    # Detectar si estamos en Hugging Face Spaces
+    import os
+    is_hf_space = os.getenv("SPACE_ID") is not None
+    
+    if is_hf_space:
+        # Configuración para Hugging Face Spaces
+        run_server(
+            host="0.0.0.0",
+            port=7860,
+            reload=False
+        )
+    else:
+        # Configuración para desarrollo local
+        run_server(
+            host="127.0.0.1",
+            port=8000,
+            reload=True
+        )

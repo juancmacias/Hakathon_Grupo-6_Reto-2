@@ -15,7 +15,7 @@ import asyncio
 from datetime import datetime
 import logging
 
-from backend.agent.agente_coordenadas import WEATHER_CODES, get_weather_forecast_json
+from agent.agente_coordenadas import WEATHER_CODES, get_weather_forecast_json
 
 # Agregar el directorio agent al path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'agent'))
